@@ -63,18 +63,25 @@ def make_text(chains):
     words = []
     tup = choice(list(chains.keys()))
 
+    #get the first word (must start with a capital letter)
     while tup[0] != tup[0].capitalize():
         tup = choice(list(chains.keys()))
 
     word_count = 0
 
-    while tup in chains and word_count < 100:
+    #get the paragraph
+    while tup in chains and word_count < 50:
         words.append(tup[0])
         next_word = choice(chains[tup])
         tup = (tup[1], next_word)
         word_count += 1
 
-    words.extend(tup)
+    #end the sentence
+    while not tup[0].endswith('.') and not tup[0].endswith('?'):
+        words.append(tup[0])
+        next_word = choice(chains[tup])
+        tup = (tup[1], next_word)
+    words.append(tup[0])
 
     return " ".join(words)
 
