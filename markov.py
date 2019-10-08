@@ -43,10 +43,12 @@ def make_chains(text_string):
         >>> chains[('there','juanita')]
         [None]
     """
-
+    unwanted_char = ['-', '[', ']', '(', ')', '/', '*', '_', '\\']
     chains = {}
     f_list = text_string.split()
     for idx, word in enumerate(f_list):
+        for char in unwanted_char:
+            word = word.replace(char, '')
         if idx == len(f_list) - 2:
             break
         tup = (word, f_list[idx+1])
@@ -77,7 +79,9 @@ def make_text(chains):
         word_count += 1
 
     #end the sentence
-    while not tup[0].endswith('.') and not tup[0].endswith('?'):
+    while not tup[0].endswith('.')
+        and not tup[0].endswith('?')
+        and not tup[0].endswith('!'):
         words.append(tup[0])
         next_word = choice(chains[tup])
         tup = (tup[1], next_word)
