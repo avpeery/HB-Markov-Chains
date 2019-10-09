@@ -48,15 +48,23 @@ def make_chains(text_string, n):
     list_to_be_tuple = []
     f_list = text_string.split()
 
-    #for the whole list
-    for idx in range(len(f_list)-n-1):
-        #for n length
-        for word_to_clean in range(f_list[idx:idx+n]):
-            for char in unwanted_char:
-                word_to_clean = word_to_clean.replace(char, '')
-            list_to_be_tuple.append(word_to_clean)
+    #to get first tuple
+    for word_to_clean in f_list[:n]:
+        for char in unwanted_char:
+            word_to_clean = word_to_clean.replace(char, '')
+        list_to_be_tuple.append(word_to_clean)
+    #for rest of string
+    for idx in range(n, len(f_list)-1):
+        #make tuple
         tup = tuple(list_to_be_tuple)
-        chains[tup] = chains.get(tup, []) + [third_word]
+        #clean next_word
+        next_word = f_list[idx+1]
+        for char in unwanted_char:
+            next_word = next_word.replace(char, '')
+        #add value to key(tup)
+        chains[tup] = chains.get(tup, []) + [next_word]
+        #create next tuple
+        list_to_be_tuple = list_to_be_tuple[1:] + [next_word]
 
     return chains
 
@@ -71,14 +79,14 @@ def make_text(chains):
     while tup[0] != tup[0].capitalize():
         tup = choice(list(chains.keys()))
 
-    word_count = 0
+    tup_count = 0
 
     #get the paragraph
-    while tup in chains and word_count < 100:
+    while tup in chains and tup_count < 100:
         words.append(tup[0])
         next_word = choice(chains[tup])
-        tup = (tup[1], next_word)
-        word_count += 1
+        tup = tup[1:] + (next_word,)
+        tup_count += 1
 
     #end the sentence
     while (tup in chains 
@@ -87,25 +95,26 @@ def make_text(chains):
         and not tup[0].endswith('!')):
         words.append(tup[0])
         next_word = choice(chains[tup])
-        tup = (tup[1], next_word)
+        tup = tup[1:] + (next_word,)
 
-    # print(f'\nIN?{tup in chains}\n')
-    # print(f'\nLAST:{tup}\n')
-    words.append(tup[0])
-
+    if tup not in chains:
+        words.extend(tup)
+    else:
+        words.append(tup[0])
+    # print(words)
     return " ".join(words)
 
 global_chains = {}
 
 #Assuming no invalid input
-gram_length = int(input('How long do you want your n-gram sequence to be? '))
+gram_length = int(input('How long do you want your n-gram sequence to be? (min 2) '))
 
 for file in sys.argv[1:]:
     input_path = file
     # Open the file and turn it into one long string
     input_text = open_and_read_file(input_path)
     # Get a Markov chain
-    global_chains.update(make_chains(input_text), gram_length)
+    global_chains.update(make_chains(input_text, gram_length))
 
 
 # Produce random text
