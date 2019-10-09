@@ -19,7 +19,7 @@ def open_and_read_file(file_path):
     return f_string
 
 
-def make_chains(text_string):
+def make_chains(text_string, n):
     """Take input text as string; return dictionary of Markov chains.
 
     A chain will be a key that consists of a tuple of (word1, word2)
@@ -43,20 +43,22 @@ def make_chains(text_string):
         >>> chains[('there','juanita')]
         [None]
     """
-    unwanted_char = ['-', '[', ']', '(', ')', '/', '*', '_', '\\']
+    unwanted_char = ['--', '[', ']', '(', ')', '/', '*', '_', '\\', '&']
     chains = {}
+    list_to_be_tuple = []
     f_list = text_string.split()
-    for idx, word in enumerate(f_list):
-        for char in unwanted_char:
-            word = word.replace(char, '')
-        if idx == len(f_list) - 2:
-            break
-        tup = (word, f_list[idx+1])
-        chains[tup] = chains.get(tup, []) + [f_list[idx+2]]
+
+    #for the whole list
+    for idx in range(len(f_list)-n-1):
+        #for n length
+        for word_to_clean in range(f_list[idx:idx+n]):
+            for char in unwanted_char:
+                word_to_clean = word_to_clean.replace(char, '')
+            list_to_be_tuple.append(word_to_clean)
+        tup = tuple(list_to_be_tuple)
+        chains[tup] = chains.get(tup, []) + [third_word]
 
     return chains
-    # for key, value in chains.items():
-    #     print(f"{key}: {value}")
 
 
 def make_text(chains):
@@ -72,34 +74,38 @@ def make_text(chains):
     word_count = 0
 
     #get the paragraph
-    while tup in chains and word_count < 50:
+    while tup in chains and word_count < 100:
         words.append(tup[0])
         next_word = choice(chains[tup])
         tup = (tup[1], next_word)
         word_count += 1
 
     #end the sentence
-    while not tup[0].endswith('.')
-        and not tup[0].endswith('?')
-        and not tup[0].endswith('!'):
+    while (tup in chains 
+        and not tup[0].endswith('.') 
+        and not tup[0].endswith('?') 
+        and not tup[0].endswith('!')):
         words.append(tup[0])
         next_word = choice(chains[tup])
         tup = (tup[1], next_word)
+
+    # print(f'\nIN?{tup in chains}\n')
+    # print(f'\nLAST:{tup}\n')
     words.append(tup[0])
 
     return " ".join(words)
 
 global_chains = {}
 
+#Assuming no invalid input
+gram_length = int(input('How long do you want your n-gram sequence to be? '))
+
 for file in sys.argv[1:]:
     input_path = file
     # Open the file and turn it into one long string
     input_text = open_and_read_file(input_path)
     # Get a Markov chain
-    global_chains.update(make_chains(input_text))
-    # for key, value in global_chains.items():
-    #     print(f"{key}: {value}")
-    # print('\n\n')
+    global_chains.update(make_chains(input_text), gram_length)
 
 
 # Produce random text
