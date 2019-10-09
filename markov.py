@@ -58,7 +58,7 @@ def make_chains(text_string, n):
         #make tuple
         tup = tuple(list_to_be_tuple)
         #clean next_word
-        next_word = f_list[idx+1]
+        next_word = f_list[idx]
         for char in unwanted_char:
             next_word = next_word.replace(char, '')
         #add value to key(tup)
